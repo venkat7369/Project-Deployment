@@ -115,4 +115,4 @@ def get_bandgap(element, model):
         return "No data available for the selected element and model"
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False,host="0.0.0.0")
