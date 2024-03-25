@@ -12,6 +12,14 @@ def get_dopants():
     conn.close()
     return [dopant[0] for dopant in dopants]
 
+def get_host_material():
+    conn = sqlite3.connect('perov21.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT DISTINCT Dopant FROM F_NN_Output_data")
+    dopants = cursor.fetchall()
+    conn.close()
+    return [dopant[0] for dopant in dopants]
+
 def get_elements():
     conn = sqlite3.connect('perov21.db')
     cursor = conn.cursor()
@@ -19,6 +27,8 @@ def get_elements():
     elements = cursor.fetchall()
     conn.close()
     return [element[0] for element in elements]
+
+
 
 
 
@@ -85,6 +95,22 @@ def get_formation_energy(dopant, model):
     else:
         return "No data available for the selected dopant and model"
 
+def get_host_materiall(dopant, model):
+    conn = sqlite3.connect('perov21.db')
+    cursor = conn.cursor()
+    if model == 'GPR':
+        cursor.execute("SELECT `GPR` FROM F_NN_Output_data WHERE Dopant = ?", (dopant,))
+    elif model == 'RFR':
+        cursor.execute("SELECT `RFR` FROM F_NN_Output_data WHERE Dopant = ?", (dopant,))
+    elif model == 'NN':
+        cursor.execute("SELECT `NN` FROM F_NN_Output_data WHERE Dopant = ?", (dopant,))
+    result = cursor.fetchone()
+    conn.close()
+    if result:
+        return result[0]
+    else:
+        return "No data available for the selected dopant and model"
+
 @app.route('/bandgap', methods=['GET', 'POST'])
 def bandgap():
     elements = get_elements()
@@ -113,6 +139,31 @@ def get_bandgap(element, model):
         return result[0]
     else:
         return "No data available for the selected element and model"
+    
+@app.route('/host_material', methods=['GET', 'POST'])
+def host_material():
+    dopants = get_host_material()
+    materials = ['CsSnI3','AgCl3']
+    model_options = ['GPR', 'NN', 'RFR']  # Options for the model dropdown menu
+    
+    # # Fetch menu options for VASP files
+    # menu_options = get_vaspfile()
+
+    if request.method == 'POST':
+        selected_dopant = request.form['dopant']
+        selected_model = request.form['model']
+        selected_material = request.form['materials']
+        print("Selected dopant:", selected_dopant)  
+        print("Selected model:", selected_model)  
+        print("Selected material:", selected_material)
+        formation_energy_value = get_host_materiall(selected_dopant, selected_model)
+        print("Formation energy value:", formation_energy_value)  
+        file_name_selected = request.form.get('option')  # Ensure to retrieve the selected option
+        return render_template('host_material.html', materials = materials,dopants=dopants, model_options=model_options,
+                               selected_dopant=selected_dopant, selected_model=selected_model, selected_material=selected_material,
+                               formation_energy_value=formation_energy_value,
+                               option=file_name_selected)
+    return render_template('host_material.html', dopants=dopants, model_options=model_options)
 
 if __name__ == '__main__':
     app.run(debug=False,host="0.0.0.0")

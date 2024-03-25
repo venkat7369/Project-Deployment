@@ -17,10 +17,14 @@ def get_csv_files(directory):
 def create_tables(connection, csv_files):
     cursor = connection.cursor()
     for csv_file in csv_files:
-        table_name = os.path.splitext(csv_file)[0]
-        df = pd.read_csv(os.path.join(csv_directory, csv_file))
-        df.to_sql(table_name, connection, index=False)
-        print(f"Table '{table_name}' created with {len(df)} rows.")
+        try:
+            table_name = os.path.splitext(csv_file)[0]
+            print("line 21 /////",table_name)
+            df = pd.read_csv(os.path.join(csv_directory, csv_file))
+            df.to_sql(table_name, connection, index=False)
+            print(f"Table '{table_name}' created with {len(df)} rows.")
+        except Exception as e:
+            print("Error:",str(e))
 
 # Main function
 def main():
