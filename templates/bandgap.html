@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bandgap</title>
+</head>
+<body>
+    <h1>Bandgap</h1>
+    <form method="POST">
+        <select name="element">
+            {% for element in elements %}
+                <option value = "{{ element }}" {% if element == selected_element %} selected {% endif %}>{{ element }}</option>
+            {% endfor %}
+        </select>
+
+        <select name="model">
+            {% for option in model_options %}
+                <option value="{{ option }}" {% if option == selected_model %} selected {% endif %}>{{ option }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="Submit">
+    </form>
+    {% if bandgap_value %}
+    <p>Bandgap Value: {{ bandgap_value }}</p>
+    {% endif %}
+    <a href="{{ url_for('home') }}">Back to Home</a>
+</body>
+</html>
+

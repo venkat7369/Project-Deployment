@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formation Energy</title>
+</head>
+<body>
+    <h1>Formation Energy</h1>
+    <form method="POST">
+        <select name="dopant">
+            {% for dopant in dopants %}
+                <option value="{{ dopant }}" {% if dopant == selected_dopant %} selected {% endif %}>{{ dopant }}</option>
+            {% endfor %}
+        </select>
+        <select name="model">
+            {% for option in model_options %}
+                <option value="{{ option }}" {% if option == selected_model %} selected {% endif %}>{{ option }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="Submit">
+    </form>
+    
+    <!-- VASP download section -->
+    <h2>Select Vasp file to download:</h2>
+    <form action="/vasp" method="get">
+        <select name="option">
+            {% for option in menu_options %} <!-- Corrected variable name -->
+                <option value="{{ option }}">{{ option }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Download File</button>
+    </form>
+
+    <!-- Display formation energy value if available -->
+    {% if formation_energy_value %}
+        <p>Formation Energy Value: {{ formation_energy_value }}</p>
+    {% endif %}
+    
+    <!-- Link back to home -->
+    <a href="{{ url_for('home') }}">Back to Home</a>
+</body>
+</html>

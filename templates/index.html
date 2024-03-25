@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perovskite Prediction</title>
+    <style>
+        .predictionBox {
+            border: 2px solid #333;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .predictionBox h2 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Perovskite Prediction</h1>
+
+    <!-- Formation Energy Prediction Box -->
+    <div class="predictionBox">
+        <h2>Formation Energy</h2>
+        <form id="formationEnergyPredictionForm">
+            <label for="formationModel">Select Model:</label>
+            <select id="formationModel" name="model">
+                <option value="gpr">Gaussian Process Regression (GPR)</option>
+                <option value="nn">Neural Network (NN)</option>
+                <option value="rfr">Random Forest Regression (RFR)</option>
+            </select><br><br>
+            <label for="formationDopant">Select Dopant:</label>
+            <select id="formationDopant" name="dopant">
+                <!-- Dopant options will be dynamically populated here -->
+            </select>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <!-- Band Gap Prediction Box -->
+    <div class="predictionBox">
+        <h2>Band Gap</h2>
+        <form id="bandGapPredictionForm">
+            <label for="bandGapModel">Select Model:</label>
+            <select id="bandGapModel" name="model">
+                <option value="gpr">Gaussian Process Regression (GPR)</option>
+                <option value="nn">Neural Network (NN)</option>
+                <option value="rfr">Random Forest Regression (RFR)</option>
+            </select><br><br>
+            <label for="bandGapDopant">Select Dopant:</label>
+            <select id="bandGapDopant" name="dopant">
+                <!-- Dopant options will be dynamically populated here -->
+            </select>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    
+
+   
+    <div class = "predictionBox"> 
+        <h2>Select Vasp file to download:</h2>
+        <form action = "/download" method = "get">
+            <select name = "option">
+                {% for option in options %} 
+                <option value = "{{option}}">{{ option }}</option>
+                {% endfor %}
+
+            </select>
+            <button type = "submit">Download File</button>
+        </form>
+
+      </div>
+    
+    
+
+    <div id="result"></div>
+
+    <script>
+        // Function to fetch dopants from the server and populate the dropdown
+        function populateDopants() {
+            fetch('/get_dopants')
+                .then(response => response.json())
+                .then(data => {
+                    const formationDopantSelect = document.getElementById('formationDopant');
+                    const bandGapDopantSelect = document.getElementById('bandGapDopant');
+                    data.dopants.forEach(dopant => {
+                        const option = document.createElement('option');
+                        option.value = dopant;
+                        option.textContent = dopant;
+                        formationDopantSelect.appendChild(option.cloneNode(true));
+                        bandGapDopantSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        // Call the function to populate dopants when the page is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            populateDopants();
+        });
+        
+        // Function to fetch dopants from the server and populate the dropdown
+        function populateElements() {
+    fetch('/get_elements')
+        .then(response => response.json())
+        .then(data => {
+            const bandGapDopantSelect = document.getElementById('bandGapDopant');
+            data.materials.forEach(material => {
+                const option = document.createElement('option');
+                option.value = material;
+                option.textContent = material;
+                bandGapDopantSelect.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+// Call the function to populate materials when the page is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    populateElements();
+});
+
+
+
+
+
+        // Function to handle formation energy prediction form submission
+        document.getElementById('formationEnergyPredictionForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(Object.fromEntries(formData))
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerHTML = `<p>Dopant: ${data.dopant}</p><p>Formation Energy: ${data.formation_energy}</p>`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+        
+
+        // Function to handle band gap prediction form submission
+        document.getElementById('bandGapPredictionForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const form = event.target;
+            const bandData = new BandData(form);
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(Object.fromEntries(bandData))
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerHTML += `<p>Band Gap: ${data.material}</p>`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        document.getElementById('VASPDownloadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const form = event.target;
+            const vaspData = new VaspData(form);
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(Object.fromEntries(vaspData))
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerHTML = `<p>File name: ${data.filenames}</p>`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
