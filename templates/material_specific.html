@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formation Energy</title>
+</head>
+<body>
+
+    <h1>Formation Energy</h1>
+    <form method="POST">
+            <p>select Structure</p>
+            <select name="dopant">
+                {% for dopant in dopants %}
+                    <option value="{{ dopant }}" {% if dopant == selected_dopant %} selected {% endif %}>{{ dopant }}</option>
+                {% endfor %}
+            </select>
+
+        <p>Select Host Material</p>
+        <select name="model">
+            {% for option in model_options %}
+                <option value="{{ option }}" {% if option == selected_model %} selected {% endif %}>{{ option }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="Submit">
+    </form>
+    
+    {% if formation_energy_value %}
+        <p>Formation Energy Value: {{ formation_energy_value }}</p>
+    {% endif %}
+
+
+    <!-- Link back to home -->
+    <p><a href="{{ url_for('host_material') }}">Back to host material</a></p><br>
+    <a href="{{ url_for('home') }}">Back to Home</a>
+</body>
+</html>

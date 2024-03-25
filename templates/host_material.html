@@ -11,23 +11,10 @@
     <form method="POST">
         <p>Select Host Material</p>
         <select name="materials">
-            <option value="CsSnI3">CsSnI3</option>
-            <option value="AgCl3">AgCl3</option>
+            <option value="Cs">Cs</option>
+            <option value="Sn">Sn</option>
         </select>
 
-        <p>select Structure</p>
-        <select name="dopant">
-            {% for dopant in dopants %}
-                <option value="{{ dopant }}" {% if dopant == selected_dopant %} selected {% endif %}>{{ dopant }}</option>
-            {% endfor %}
-        </select>
-
-        <p>Select Host Material</p>
-        <select name="model">
-            {% for option in model_options %}
-                <option value="{{ option }}" {% if option == selected_model %} selected {% endif %}>{{ option }}</option>
-            {% endfor %}
-        </select>
         <input type="submit" value="Submit">
     </form>
     

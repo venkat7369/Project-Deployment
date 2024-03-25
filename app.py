@@ -12,10 +12,14 @@ def get_dopants():
     conn.close()
     return [dopant[0] for dopant in dopants]
 
-def get_host_material():
+def get_host_material(selected_material):
     conn = sqlite3.connect('perov21.db')
     cursor = conn.cursor()
-    cursor.execute("SELECT DISTINCT Dopant FROM F_NN_Output_data")
+    # cursor.execute("SELECT DISTINCT Dopant FROM F_NN_Output_data WHERE Dopant Like %_"+selected_material)
+    query = "SELECT DISTINCT Dopant FROM F_NN_Output_data WHERE Dopant LIKE ?"
+    # Construct the pattern with the selected_material variable
+    pattern = "%" + "_" + selected_material
+    cursor.execute(query, (pattern,))
     dopants = cursor.fetchall()
     conn.close()
     return [dopant[0] for dopant in dopants]
@@ -142,28 +146,55 @@ def get_bandgap(element, model):
     
 @app.route('/host_material', methods=['GET', 'POST'])
 def host_material():
-    dopants = get_host_material()
-    materials = ['CsSnI3','AgCl3']
+    
+    materials = ['Cs','Sn']
     model_options = ['GPR', 'NN', 'RFR']  # Options for the model dropdown menu
     
     # # Fetch menu options for VASP files
     # menu_options = get_vaspfile()
-
+    # selected_material = 'Cs'
+    # dopants = get_host_material(selected_material)
+    if request.method == 'POST':
+        # selected_dopant = request.form['dopant']
+        # selected_model = request.form['model']
+        selected_material = request.form['materials']
+        # print("Selected dopant:", selected_dopant)  
+        # print("Selected model:", selected_model)  
+        print("Selected material:", selected_material)
+        # dopants = get_host_material(selected_material)
+        # formation_energy_value = get_host_materiall(selected_dopant, selected_model)
+        # print("Formation energy value:", formation_energy_value)  
+        # file_name_selected = request.form.get('option')  # Ensure to retrieve the selected option
+        # return render_template('host_material.html', materials = materials, selected_material=selected_material,
+                            #    option=file_name_selected)
+        print("line 170", selected_material)
+        return redirect(url_for('material_specific', materiall=selected_material))
+    return render_template('host_material.html', materials = materials)
+    
+@app.route('/material_specific/<materiall>', methods=['GET', 'POST'])
+def material_specific(materiall):
+    
+    materials = ['Cs','Sn']
+    model_options = ['GPR', 'NN', 'RFR']  # Options for the model dropdown menu
+    
+    # # Fetch menu options for VASP files
+    # menu_options = get_vaspfile()
+    selected_material = materiall
+    dopants = get_host_material(materiall)
     if request.method == 'POST':
         selected_dopant = request.form['dopant']
         selected_model = request.form['model']
-        selected_material = request.form['materials']
         print("Selected dopant:", selected_dopant)  
         print("Selected model:", selected_model)  
         print("Selected material:", selected_material)
         formation_energy_value = get_host_materiall(selected_dopant, selected_model)
         print("Formation energy value:", formation_energy_value)  
         file_name_selected = request.form.get('option')  # Ensure to retrieve the selected option
-        return render_template('host_material.html', materials = materials,dopants=dopants, model_options=model_options,
+        return render_template('material_specific.html', materials = materials,dopants=dopants, model_options=model_options,
                                selected_dopant=selected_dopant, selected_model=selected_model, selected_material=selected_material,
                                formation_energy_value=formation_energy_value,
                                option=file_name_selected)
-    return render_template('host_material.html', dopants=dopants, model_options=model_options)
+    return render_template('material_specific.html', dopants=dopants, model_options=model_options)
 
 if __name__ == '__main__':
     app.run(debug=False,host="0.0.0.0")
