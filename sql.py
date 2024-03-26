@@ -3,7 +3,7 @@ import pandas as pd
 import os
 
 # Directory containing CSV files
-csv_directory = '/Users/gutta/Desktop/project march/data'
+csv_directory = 'C:/Users/gutta/Documents/GitHub/Project-Deployment/data'
 
 # Function to get list of CSV files
 def get_csv_files(directory):
